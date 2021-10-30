@@ -35,11 +35,7 @@ def irisLocalization(img):
     # Project the image in the vertical and horizontal
     # direction to approximately estimate the center
     # coordinates Xp; Yp of the pupil
-    vertical_projection = projectImg(img=img,axis=0)
-    horizontal_projection = projectImg(img=img,axis=1)
-    
-    xp = np.argmin(vertical_projection)
-    yp = np.argmin(horizontal_projection)
+    xp, yp = getPupilCentroid(img)
 
     # 2. Binarize a 120 X 120 region centered at the point
     # Xp; Yp by adaptively selecting a reasonable threshold
@@ -69,6 +65,16 @@ def irisLocalization(img):
 def projectImg(img,axis):
     return np.sum(img, axis=axis)
 
+
+def getPupilCentroid(img):
+    vertical_projection = projectImg(img=img,axis=0)
+    horizontal_projection = projectImg(img=img,axis=1)
+    
+    xp = np.argmin(vertical_projection)
+    yp = np.argmin(horizontal_projection)
+    
+    return xp, yp
+    
 
 def radiusCalc(size,centroid):
     return 0.5*(size - centroid)
