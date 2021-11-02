@@ -8,14 +8,16 @@ across the whole image. The mean of each
 background illumination.
 """
 
+# def imageEnhancement(img):
+#     return cv2.equalizeHist(img.astype(np.uint8))
+
 
 def imageEnhancement(img):
     cimg = img.copy()
     background = meanFilter(cimg)
     removed = removeBackground(img,background)
-    img_hist = enhanceIllumination(removed)
+    img_hist = enhanceIllumination(removed).astype(np.uint8)
     # return cv2.equalizeHist(removed.astype(np.uint8))
-
     return img_hist
 
 

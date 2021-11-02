@@ -9,11 +9,18 @@ from utils import *
 import random
 
 if __name__=="__main__":
-    subject = random.randint(0,107)
+    subject = random.randint(0,108*3-1)
     print(subject)
-    train = readDataset()   
-    img = train[0][subject]
-    # img = train[0][1]
+    # train,test= readDataset(train=True,test=True)   
+    # np.save("train",train)
+    # np.save("test",test)
+    
+    
+    train = np.load("train.npy")
+    test = np.load("test.npy")
+    
+    img = train[subject]
+    # img = train[71]
     # 81 55 10 94
     # print(img.shape)
     inner_circle, outer_circle = irisLocalization(img)
@@ -23,4 +30,4 @@ if __name__=="__main__":
     plt.show()
     
     feature_vect = featureExtraction(img_enhance)
-    print(len(feature_vect))
+    # print((feature_vect))

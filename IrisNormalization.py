@@ -4,7 +4,7 @@ from math import pi,sin,cos,floor
 """Refer to [https://journals.sagepub.com/doi/pdf/10.1177/1729881417703931]
 """
 
-def irisNormalization(img:np.ndarray,inner_circle:np.ndarray, outer_circle:np.ndarray):
+def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.ndarray,rotation=0):
     M,N = 64, 512
     # create a placeholder for normalized image
     img_normalized = np.zeros((M,N))
@@ -14,7 +14,9 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray, outer_circle:np.nd
     
     for Y in range(M):
         for X in range(N):
-            theta = 2*pi*(X/N)
+            theta = 2*pi*(X/N) + rotation
+            if theta > 2*pi:
+                theta -= 2*pi
             xp,yp = unwrap(xp_,yp_,rp,theta)
             xi,yi = unwrap(xi_,yi_,ri,theta)
 
