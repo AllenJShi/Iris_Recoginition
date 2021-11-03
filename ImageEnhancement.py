@@ -31,10 +31,10 @@ def meanFilter(img:np.ndarray,size=16):
             background[row,col] = value
     
     background = cv2.resize(background,None,fx=size, fy=size, interpolation = cv2.INTER_CUBIC)
-    _,ax = plt.subplots(1,2)
-    ax[0].imshow(background)
-    ax[1].imshow(img)
-    plt.show()
+    # _,ax = plt.subplots(1,2)
+    # ax[0].imshow(background)
+    # ax[1].imshow(img)
+    # plt.show()
     # print(background.shape)
     return background
 

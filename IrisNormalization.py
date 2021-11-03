@@ -4,17 +4,21 @@ from math import pi,sin,cos,floor
 """Refer to [https://journals.sagepub.com/doi/pdf/10.1177/1729881417703931]
 """
 
-def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.ndarray,rotation=0):
+def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.ndarray,offset=0):
     M,N = 64, 512
     # create a placeholder for normalized image
     img_normalized = np.zeros((M,N))
     
-    [xp_,yp_,rp] = inner_circle.astype(int).flatten()
-    [xi_,yi_,ri] = outer_circle.astype(int).flatten()
+    try:
+        [xp_,yp_,rp] = inner_circle.astype(int).flatten()
+        [xi_,yi_,ri] = outer_circle.astype(int).flatten()
+    except:
+        [xp_,yp_,rp] = inner_circle.astype(int).flatten()[:3]
+        [xi_,yi_,ri] = outer_circle.astype(int).flatten()[:3]
     
     for Y in range(M):
         for X in range(N):
-            theta = 2*pi*(X/N) + rotation
+            theta = 2*pi*(X/N) + offset
             if theta > 2*pi:
                 theta -= 2*pi
             xp,yp = unwrap(xp_,yp_,rp,theta)
@@ -22,8 +26,10 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.nda
 
             x = int(xp + (xi - xp)*(Y/M))
             y = int(yp + (yi - yp)*(Y/M))
-  
-            img_normalized[Y,X] = img[y,x]
+            try:
+                img_normalized[Y,X] = img[y,x]
+            except:
+                continue
 
     return img_normalized
 

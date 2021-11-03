@@ -53,7 +53,7 @@ def featureVector(img1,img2,step=8):
     vectors = []
     # nrow,ncol = tuple(map(lambda x: int(x/step), img1.shape))
     nrow,ncol = img1.shape
-    print(nrow,ncol)
+    # print(nrow,ncol)
     for x in np.arange(0, nrow, step):
         for y in np.arange(0, ncol, step):
             product1 = img1[x:(x + step), y:(y + step)]

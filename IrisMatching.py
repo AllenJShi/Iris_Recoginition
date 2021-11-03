@@ -4,7 +4,7 @@ from ImageEnhancement import *
 from IrisNormalization import *
 from IrisLocalization import *
 from FeatureExtraction import *
-
+from scipy.spatial.distance import euclidean, cosine
 
 offsets = [-9,-6,-3,0,3,6,9]
 
@@ -51,23 +51,58 @@ def preprocess(img,rotate=False,offsets=offsets):
     
     return feature_vectors
 
+def generateLabels(N=108,rotate=False,offsets=offsets):
+    if rotate:
+        y_train = np.repeat(range(N),3*len(offsets))
+    else:
+        y_train = np.repeat(range(N),3)
+    
+    y_test = np.repeat(range(N),4)
+    
+    return y_train, y_test
+    
 
-def irisMatching(train, test, n_components = 107,rotate=False):
+
+def irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False):
     X_train = []
     X_test = []
-    for img in train:
+    # print(len(train))
+    for i,img in enumerate(train):
         X_train_vect = preprocess(img,rotate,offsets)
+        # print(len(X_train_vect)) this is a seven-vector 
         X_train.append(X_train_vect)
-        
-    for img in test:
+        print(f"process train image {int((i)/3)}: {int((i)//3)}th")
+    
+    np.save("X_train",X_train)
+    
+    for i,img in enumerate(test):
         X_test_vect = preprocess(img,rotate=False,offsets=0)
         X_test.append(X_test_vect)
+        print(f"process test image {int((i)/4)}: {int((i)//4)}th")
     
-    if rotate:
-        y_train = np.repeat(range(n_components+1),3*len(offsets))
-    else:
-        y_train = np.repeat(range(n_components+1),3)
+    np.save("X_test",X_test)
     
-    y_test = np.repeat(range(n_components+1),4)
+    y_train, y_test = generateLabels(N=n_components+1,rotate=rotate,offsets=offsets)
+    
+    # dimension reduction
+    if dimReduce:
+        X_train_lda, X_test_lda = \
+            fisherLinearDiscriminant(X_train,y_train,X_test,n_components=n_components)
+        np.save("X_train_lda",X_train_lda)
+        np.save("X_test_lda",X_test_lda)
+        
+        return X_train_lda,y_train, X_test_lda, y_test
+    
+
+
+
+    # L1 = []
+    # L2 = []
+    # cosine = []
         
     return X_train,y_train, X_test, y_test
+
+
+
+if __name__ == "__main__":
+    pass

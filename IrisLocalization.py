@@ -54,7 +54,12 @@ def irisLocalization(img):
     # In this binary region, we can also roughly compute
     # the radius of the pupil
     cimg = img.copy()
-    region = cv2.cvtColor(img[yp-60:yp+60,xp-60:xp+60],cv2.COLOR_GRAY2BGR)
+    try:
+        region = cv2.cvtColor(img[yp-60:yp+60,xp-60:xp+60],cv2.COLOR_GRAY2BGR)
+    except:
+        xp = int(img.shape[0]/2)
+        yp = int(img.shape[1]/2)
+        region = cv2.cvtColor(img[yp-60:yp+60,xp-60:xp+60],cv2.COLOR_GRAY2BGR)
     
     # Calculate the exact parameters of these two circles
     # using edge detection (Canny operator in experiments) 
@@ -86,8 +91,8 @@ def irisLocalization(img):
         # draw the center of the circle
         cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-    plt.imshow(cimg)
-    plt.show()
+    # plt.imshow(cimg)
+    # plt.show()
     
     
     
@@ -109,7 +114,7 @@ def irisLocalization(img):
         flag = (sqrt(((outer_circle.flatten()- \
                     inner_circle.flatten())**2).sum()) \
                 > 0.6*outer_circle.flatten()[-1])
-        print(flag)
+        # print(flag)
     except:
         flag = False
     if flag:
@@ -122,8 +127,8 @@ def irisLocalization(img):
         # draw the center of the circle
         cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-    plt.imshow(cimg)
-    plt.show()
+    # plt.imshow(cimg)
+    # plt.show()
     
     return inner_circle, outer_circle
 

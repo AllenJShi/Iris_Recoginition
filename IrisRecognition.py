@@ -8,7 +8,8 @@ from utils import *
 
 import random
 
-if __name__=="__main__":
+
+def test():
     subject = random.randint(0,108*3-1)
     print(subject)
     # train,test= readDataset(train=True,test=True)   
@@ -31,3 +32,23 @@ if __name__=="__main__":
     
     feature_vect = featureExtraction(img_enhance)
     # print((feature_vect))
+    
+    
+
+
+if __name__=="__main__":
+    # test()
+
+    # train = np.load("train.npy")
+    # test = np.load("test.npy")
+    # X_train,y_train, X_test, y_test= \
+    #     irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False)
+    
+    X_train = np.load("X_train.npy")
+    X_test = np.load("X_test.npy")
+    
+    
+    
+
+
+
