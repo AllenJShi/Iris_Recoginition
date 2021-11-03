@@ -21,8 +21,8 @@ def test():
     # test = np.load("test.npy")
     
     # img = train[subject]
-    img = train[104]
-    # 81 55 10 94 71
+    img = train[282]
+    # 81 55 10 94 71 55*3-1
     # print(img.shape)
     inner_circle, outer_circle = irisLocalization(img)
     img_norm = irisNormalization(img,inner_circle,outer_circle)
@@ -44,8 +44,11 @@ if __name__=="__main__":
     X_train,y_train, X_test, y_test= \
         irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False)
     
-    X_train = np.load("X_train.npy")
-    X_test = np.load("X_test.npy")
+    # X_train = np.load("X_train.npy")
+    # X_test = np.load("X_test.npy")
+    
+    
+    
     
     
     

@@ -45,7 +45,6 @@ def irisLocalization(img):
     # The centroid of the resulting binary region is considered
     # as a more accurate estimate of the pupil coordinates.
     xp, yp = adaptiveCentroid(img,xp,yp,size=60)
-    
     # cimg = img.copy()
     # cv2.circle(cimg,(xp,yp),rp,(255,0,0),2)
     # plt.imshow(cimg,cmap="gray")
@@ -69,11 +68,7 @@ def irisLocalization(img):
     # and Hough transform in a certain region
     # determined by the center of the pupil.
     
-    # inner_circle = hough(img,xp,yp)
-    
     edges = cv2.Canny(region,100,200)
-    # plt.imshow(edges)
-    # plt.show()
     minR = 0
     maxR = 0
     inner_circle = cv2.HoughCircles(edges,
@@ -81,25 +76,37 @@ def irisLocalization(img):
                                     1, 250,
                                     param1=30, param2=10,
                                     minRadius=minR, maxRadius=maxR)
-
-    inner_circle = np.uint16(np.around(inner_circle))
-
+    # print(type(inner_circle))
+    try:
+        inner_circle = np.uint16(np.around(inner_circle))
+    except:
+        try:
+            print(x0,x1,y0,y1)
+            region = cv2.cvtColor(img[yp-60:yp+60,xp-60:xp+60],cv2.COLOR_GRAY2BGR)
+        except:
+            xp = int(img.shape[0]/2)
+            yp = int(img.shape[1]/2)
+            region = cv2.cvtColor(img[yp-60:yp+60,xp-60:xp+60],cv2.COLOR_GRAY2BGR)
+        edges = cv2.Canny(region,100,200)
+        inner_circle = cv2.HoughCircles(edges,
+                                        cv2.HOUGH_GRADIENT, 
+                                        1, 250,
+                                        param1=30, param2=10,
+                                        minRadius=minR, maxRadius=maxR)
+    # print(inner_circle)
 
     
     for i in inner_circle[0, :]:
         # draw the outer circle
-        i[0] += xp-60
-        i[1] += yp-60
-        cv2.circle(cimg, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        i[0] += max(xp-60,0)
+        i[1] += max(yp-60,0)
+        cv2.circle(cimg, (int(i[0]), int(i[1])), int(i[2]), (0, 255, 0), 2)
         # draw the center of the circle
-        cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
+        cv2.circle(cimg, (int(i[0]), int(i[1])), 2, (0, 0, 255), 3)
 
     # plt.imshow(cimg)
     # plt.show()
-    
-    
-    
-    
+
     edges = cv2.Canny(img,20,30)
     minR = 98
     maxR = minR + 20
@@ -115,7 +122,6 @@ def irisLocalization(img):
         flag = (sqrt(((outer_circle.flatten()- \
                     inner_circle.flatten())**2).sum()) \
                 > 0.6*outer_circle.flatten()[-1])
-        # print(flag)
     except:
         flag = False
         
@@ -125,9 +131,9 @@ def irisLocalization(img):
     
     for i in outer_circle[0, :]:
         # draw the outer circle
-        cv2.circle(cimg, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        cv2.circle(cimg, (int(i[0]), int(i[1])), int(i[2]), (0, 255, 0), 2)
         # draw the center of the circle
-        cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
+        cv2.circle(cimg, (int(i[0]), int()), 2, (0, 0, 255), 3)
 
     # plt.imshow(cimg)
     # plt.show()
@@ -180,14 +186,17 @@ def adaptiveCentroid(img,xp,yp,size=60):
     # plt.imshow(draw)
     # plt.title("adaptive final")
     # plt.show()
+    
+    # xp = min(319,max(0,xp))
+    # yp = min(279,max(0,yp))   
     return xp,yp
         
 
-# def radiusCalc(img_binary):
-#     img_binary_ = np.where(img_binary > 1, 0, 1)
-#     # print(img_binary_)
-#     diameter = max(projectImg(img_binary_, axis=0).max(), projectImg(img_binary_, axis=1).max())
-#     return int(0.5 * diameter)
+def radiusCalc(img_binary):
+    img_binary_ = np.where(img_binary > 1, 0, 1)
+    # print(img_binary_)
+    diameter = max(projectImg(img_binary_, axis=0).max(), projectImg(img_binary_, axis=1).max())
+    return int(0.5 * diameter)
     
     
 # def hough(img,xp,yp, minR = 0, maxR = 0,size = 60):

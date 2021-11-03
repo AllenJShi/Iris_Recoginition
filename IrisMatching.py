@@ -71,14 +71,14 @@ def irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False
         X_train_vect = preprocess(img,rotate,offsets)
         # print(len(X_train_vect)) this is a seven-vector 
         X_train.append(X_train_vect)
-        print(f"process train image {int((i)/3)}: {int((i)//3)}th")
+        print(f"process train image {int((i)/3)}: {int((i))}th")
     
     np.save("X_train",X_train)
     
     for i,img in enumerate(test):
         X_test_vect = preprocess(img,rotate=False,offsets=0)
         X_test.append(X_test_vect)
-        print(f"process test image {int((i)/4)}: {int((i)//4)}th")
+        print(f"process test image {int((i)/4)}: {int((i))}th")
     
     np.save("X_test",X_test)
     
