@@ -22,6 +22,9 @@ def imageEnhancement(img):
 
 
 def meanFilter(img:np.ndarray,size=16):
+    # Estimated background illumination by bicubic interpolation:
+    # The mean of each 16*16 small block constitutes a coarse estimate of the background illumination.
+    # This estimate is further expanded to the same size as the normalized image by bicubic interpolation.
     nrow,ncol = tuple(map(lambda x: int(x/size), img.shape))
     background = np.zeros((nrow,ncol))
     for row in range(nrow):
@@ -39,6 +42,7 @@ def meanFilter(img:np.ndarray,size=16):
 
 
 def enhanceIllumination(img,size=32):
+    # Enhance the lighting corrected image by histogram equalization in each 32*32 region.
     nrow,ncol = tuple(map(lambda x: int(x/size), img.shape))
     img_hist = np.zeros(img.shape)
     for row in range(nrow):
@@ -50,10 +54,13 @@ def enhanceIllumination(img,size=32):
 
 
 def removeBackground(img,background):
+    # Subtracted the estimated background illumination from the normalized image
+    # to compensate for a variety of lighting conditions.
     enhance = img-background
     enhance = enhance - np.amin(enhance.ravel())
     return enhance.astype(np.uint8)  
 
 def equalizeHelper(img):
+    # Histogram equalization
     return cv2.equalizeHist(np.array(img,dtype=np.uint8))
     

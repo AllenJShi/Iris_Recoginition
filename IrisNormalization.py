@@ -6,17 +6,31 @@ import math
 """
 
 def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.ndarray,offset=0):
+    '''
+    Project the original iris from a Cartesian coordinate system into a doubly dimensionless pseudopolar coordinate.
+    Counterclockwise unwrap the iris ring to a rectangular block, and normalizes irises of different size to the same size.
+
+    Args:
+        img: image to be processed
+        inner_circle: detected inner_circle parameters from localization
+        outer_circle: detected outer_circle parameters from localization
+        offset: offset determines the starting point while unwrapping the iris ring
+
+    Returns:
+        img_normalized: a normalized iris image
+    '''
+
     M,N = 64, 512
     # create a placeholder for normalized image
     img_normalized = np.zeros((M,N))
-    
+
     try:
         [xp_,yp_,rp] = inner_circle.astype(int).flatten()
         [xi_,yi_,ri] = outer_circle.astype(int).flatten()
     except:
         [xp_,yp_,rp] = inner_circle.astype(int).flatten()[:3]
         [xi_,yi_,ri] = outer_circle.astype(int).flatten()[:3]
-    
+
     for X in range(N):
         for Y in range(M):
             theta = 2*pi*(X/N) + offset
@@ -40,7 +54,7 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.nda
 #     # create a placeholder for normalized image
 #     img_normalized = np.zeros((M, N))
 #     # xc_inner, yc_inner, rp, xc_outer, yc_outer, ri
-    
+
 #     try:
 #         [xc_inner, yc_inner, rp] = inner_circle.astype(int).flatten()
 #         [xc_outer, yc_outer, ri] = outer_circle.astype(int).flatten()
@@ -62,7 +76,7 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.nda
 #             x = math.floor(xp + ((xi - xp)) * (Y / M))
 #             y = math.floor(yp + ((yi - yp)) * (Y / M))
 #             img_normalized[Y, X] = img[y, x]
-    
+
 #     return img_normalized
 
 

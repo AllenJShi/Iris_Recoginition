@@ -8,13 +8,13 @@ def irisLocalization(img):
     """
         1.Project the image in the vertical and horizontal
         direction to approximately estimate the center
-        coordinates ðXp; YpÞ of the pupil. Since the pupil is
+        coordinates (Xp; Yp) of the pupil. Since the pupil is
         generally darker than its surroundings, the coordinates
         corresponding to the minima of the two
         projection profiles are considered as the center
         coordinates of the pupil.
-        2. Binarize a 120  120 region centered at the point
-        ðXp; YpÞ by adaptively selecting a reasonable threshold
+        2. Binarize a 120 * 120 region centered at the point
+        Xp; Yp by adaptively selecting a reasonable threshold
         using the gray-level histogram of this region. The
         centroid of the resulting binary region is considered
         as a more accurate estimate of the pupil coordinates.
