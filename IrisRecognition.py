@@ -4,36 +4,7 @@ from IrisMatching import *
 from ImageEnhancement import *
 from FeatureExtraction import *
 from PerformanceEvaluation import *
-from utils import *
-
-# import random
-
-
-# def test():
-#     subject = random.randint(0,108*3-1)
-#     print(subject)
-#     # train,test= readDataset(train=True,test=True)   
-#     # np.save("train",train)
-#     # np.save("test",test)
-    
-    
-#     train = np.load("train_denoise.npy")
-#     # train = np.load("train.npy")
-#     # test = np.load("test.npy")
-    
-#     # img = train[subject]
-#     img = train[282]
-#     # 81 55 10 94 71 55*3-1
-#     # print(img.shape)
-#     inner_circle, outer_circle = irisLocalization(img)
-#     img_norm = irisNormalization(img,inner_circle,outer_circle)
-#     img_enhance = imageEnhancement(img_norm)
-#     plt.imshow(img_enhance,cmap="gray")
-#     plt.show()
-    
-#     feature_vect = featureExtraction(img_enhance)
-#     # print((feature_vect))
-    
+from utils import *    
     
 
 
@@ -42,34 +13,48 @@ if __name__=="__main__":
     warnings.filterwarnings("ignore")
     
     # read images from dataset and store in npy files
-    # train,test= readDataset(train=True,test=True)   
-    # np.save("train",train)
-    # np.save("test",test)
+    train,test= readDataset(train=True,test=True)   
+    np.save("train",train)
+    np.save("test",test)
     
     # load raw image data from npy files
-    # train = np.load("train.npy")
-    # test = np.load("test.npy")
-    # X_train,y_train, X_test, y_test= \
-    #     irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False)
+    train = np.load("train.npy")
+    test = np.load("test.npy")
+    X_train,y_train, X_test, y_test= \
+        irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False)
+    performanceEvaluation(X_train, y_train, X_test, y_test)
     
     
+    
+    # ==================================================================================================
+    # The following code provides a shortcut by storing and reusing some intermediate image-preprocessing
+    # results and thus reduce the overall running time.
+    # Caveat: the scripts above must be executed at least once to have 
+    # -"train.npy", 
+    # -"test.npy",
+    # -"X_train.npy",
+    # -"X_test.npy"
+    # stored in the working directory.
+    # Also, be aware that the previous CRR.png, FMR_FNMR.png, "CRR Table.csv" and "ROC Table.csv" will
+    # be updated and overwritten for each operation.
+    # ==================================================================================================
     # load the preprocessed data directly from npy files
     # X_train = np.load("X_train.npy")
     # X_test = np.load("X_test.npy")
     
-    # 
+    # use rotation to obtain invariants, need to reload "train.npy" to rotate the train dataset
+    # train = np.load("train.npy")
     # X_train,y_train, X_test, y_test = irisMatching(train=train, test=None,rotate=True)
     # performanceEvaluation(X_train, y_train, X_test, y_test)
     # CRR result
     # 0.7592592592592593 0.7152777777777778 0.7013888888888888
 
     # use the stored npy data to save preprocessing time
-    X_train,y_train, X_test, y_test = irisMatching(train=None, test=None,rotate=False)
-    performanceEvaluation(X_train, y_train, X_test, y_test)
+    # X_train,y_train, X_test, y_test = irisMatching(train=None, test=None,rotate=False)
+    # performanceEvaluation(X_train, y_train, X_test, y_test)
     # CRR result
     # 0.8125 0.7708333333333334 0.7662037037037037
     # 0.7870370370370371 0.8009259259259259 0.8541666666666666
-    
     
     
     # use PCA to reduce the dimensionality
