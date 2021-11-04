@@ -72,6 +72,14 @@ def featureVector(img1,img2,step=8):
 
 
 def featureExtraction(img):
+    """extract features by both kernals defined in the paper
+
+    Args:
+        img (array): input image
+
+    Returns:
+        vector: feature vectors after convolving with both kernals
+    """
     sfilter1 = spatialFilter(delta_x=params["channel_1"]["delta_x"],delta_y=params["channel_1"]["delta_y"])
     sfilter2 = spatialFilter(delta_x=params["channel_2"]["delta_x"],delta_y=params["channel_2"]["delta_y"])
     

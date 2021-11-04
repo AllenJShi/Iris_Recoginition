@@ -1,8 +1,7 @@
-from cv2 import threshold
 from IrisMatching import *
 import matplotlib.pyplot as plt 
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.decomposition import PCA
+import pandas as pd
     
 def identification(X_train, y_train, X_test, y_test):
     # In identification mode, the algorithm is
@@ -20,7 +19,7 @@ def identification(X_train, y_train, X_test, y_test):
     l1,_ = nearestCentroid(X_train, y_train, X_test, y_test, metric="l1")
     l2,_ = nearestCentroid(X_train, y_train, X_test, y_test, metric="l2")
     cosine,_ = nearestCentroid(X_train, y_train, X_test, y_test, metric="cosine")
-    print(l1,l2,cosine)
+    crr_orig = [l1,l2,cosine]
     
     # dimension reduction
     X_train_lda, X_test_lda = \
@@ -29,23 +28,55 @@ def identification(X_train, y_train, X_test, y_test):
     l1_lda,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="l1")
     l2_lda,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="l2")
     cosine_lda,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="cosine")
-    print(l1_lda,l2_lda,cosine_lda)
+    crr_lda = [l1_lda,l2_lda,cosine_lda]
     
-    crr = []
+    crr_table = pd.DataFrame({
+        "original feature set":crr_orig,
+        "reduced feature set":crr_lda
+    },
+                             index=[
+                                 "L1 distance measure (%)",
+                                 "L2 distance measure (%)",
+                                 "cosine distance measure (%)"
+                             ])
+    crr_table.to_csv("CRR Table.csv")
+    # print CRR table
+    print("======================== CRR ========================")
+    print(crr_table)
+    
+    cosines = []
+    l1s = []
+    l2s = []
     dims = np.arange(1,108,10)
-   
+
+    # reduce dimensionality by attempt dimensions
     for dim in dims:
         X_train_lda, X_test_lda = \
                     fisherLinearDiscriminant(X_train,y_train,X_test,n_components=dim)
         
         cosine,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="cosine")
-        crr.append(cosine)
+        l1,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="l1")
+        l2,_ = nearestCentroid(X_train_lda, y_train, X_test_lda, y_test, metric="l2")
+        cosines.append(cosine)
+        l1s.append(l1)
+        l2s.append(l2)
         
-    plt.plot(dims,crr,"-*")    
+    # Convert crr to percentage
+    cosines = [element * 100 for element in cosines]
+    l1s = [element * 100 for element in l1s]
+    l2s = [element * 100 for element in l2s]
+        
+    # plot the curve
+    plt.plot(dims,l1s,"bo-",label="L1")
+    plt.plot(dims,l2s,"r+-",label="L2")  
+    plt.plot(dims,cosines,"g^-",label="Cosine")
+    plt.legend()      
     plt.xlabel("Dimensionality of the feature vector")
     plt.ylabel("Correct recognition rate")
     plt.title("Recognition results using features of different dimensionality")
+    fig = plt.gcf()
     plt.show()
+    fig.savefig('CRR.png')
 
     return X_train_lda, X_test_lda
 
@@ -66,10 +97,14 @@ def verification(X_train, y_train, X_test, y_test):
     scores = scores.reshape((-1, 4, 108))
     results = results.reshape((-1, 4, 108))
     
+    # calculate the original feature vectors' ROC result
     fmrs_org = np.zeros(20)
     fnmrs_org = np.zeros(20)
     for j,threshold in enumerate(thresholds):
         fmrs_org[j], fnmrs_org[j] = map(lambda x:x*100, ROC(results,scores,threshold))
+    mean_fmrs_org = np.mean(fmrs_org)
+    mean_fnmrs_org = np.mean(fnmrs_org)
+
 
     # bootstrap
     # create masks to randomly select labels and 
@@ -91,12 +126,29 @@ def verification(X_train, y_train, X_test, y_test):
     mean_fmrs = np.mean(fmrs,axis=0)*100
     mean_fnmrs = np.mean(fnmrs,axis=0)*100
     
-    
+    # find CI for fmr and fnmr
     ci_fmrs = np.percentile(fmrs,[2.5,97.5],axis=0).T*100
     ci_fnmrs = np.percentile(fnmrs,[2.5,97.5],axis=0).T*100
     
-    _, axs = plt.subplots(1,2)
     
+    roc_table = pd.DataFrame(
+        {
+            "Thresholds":thresholds,
+            "False match rate (%)":mean_fmrs_org,
+            "False non-match rate (%)":mean_fnmrs_org         
+        }
+    ).set_index("Thresholds")
+    roc_table.to_csv("ROC Table.csv")
+    
+    # create result table
+    print("======================== ROC ========================")
+    print(roc_table)
+    
+    
+    # create figure plot
+    fig, axs = plt.subplots(1,2)
+    
+    # configure ax iteratively
     for ax in axs:
         ax.set_xticks([1e-3, 1e-2, 1e-1, 1e-0, 1e1, 1e2])
         ax.set_xscale("log")
@@ -108,11 +160,20 @@ def verification(X_train, y_train, X_test, y_test):
     axs[1].plot(mean_fmrs, ci_fnmrs)
     axs[1].set_title('FNMR CI')
     plt.show()
+    fig.savefig('FMR_FNMR.png')
 
 
 
 
 def performanceEvaluation(X_train, y_train, X_test, y_test):
+    """perform evaluation for both identification and verification
+
+    Args:
+        X_train (array): train dataset feature vectors/matrix
+        y_train (array): train dataset class labels
+        X_test (array): test datasect feature cectors
+        y_test (array): test dataset class labels
+    """
     X_train_lda, X_test_lda = identification(X_train, y_train, X_test, y_test)
     verification(X_train_lda, y_train, X_test_lda, y_test)
     

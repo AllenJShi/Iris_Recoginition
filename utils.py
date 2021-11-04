@@ -10,28 +10,39 @@ from FeatureExtraction import *
 directory = './data/'
 
 def readSignleImg(file_path):
+    """take file path and read the image in the path
+
+    Args:
+        file_path (string): input image location
+
+    Returns:
+        image matrix: the image matrix stored in the path
+    """
     img = cv2.imread(filename=file_path)
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
 def readDataset(train=True,test=False):
-    # train_img = [[],[],[]]
-    # test_img = [[],[],[],[]]
+    """read all images in the dataset
+
+    Args:
+        train (bool, optional): true if ask to extract training set. Defaults to True.
+        test (bool, optional): true if ask to extract testing set. Defaults to False.
+
+    Returns:
+        tuple or array: return the train and/or test data based on request
+    """
     train_img = []
     test_img = []
     if train:
         paths = [file for file in glob.glob("./data/*/1/*.bmp")]
-        # for indx in range(3):
-        #     for path in paths[indx::3]:
-        #         train_img[indx].append(readSignleImg(path))
+        # loop through the path list and read all images into the container
         for path in paths:
             train_img.append(readSignleImg(path))
     
     if test:
         paths = [file for file in glob.glob("./data/*/2/*.bmp")]
-        # for indx in range(4):
-        #     for path in paths[indx::3]:
-        #         test_img[indx].append(readSignleImg(path))
+        # loop through the path list and read all images into the container
         for path in paths:
             test_img.append(readSignleImg(path))
 
@@ -39,6 +50,15 @@ def readDataset(train=True,test=False):
 
 
 def rotateImg(img,offset):
+    """rotate the image by the offset degree
+
+    Args:
+        img (array): input image to be rotated
+        offset (int): degree by which to rotate the image
+
+    Returns:
+        array: rotated image
+    """
     pixels = abs(int(512*offset/360))
     if offset > 0:
         return np.hstack([img[:,pixels:],img[:,:pixels]] )
@@ -48,8 +68,12 @@ def rotateImg(img,offset):
 
 
 def saveNormalizedImage():
+    """help to read all train images and normalize and enhance the images
+        save all images into npy file
+    """
     train = np.load("train.npy")
     norm = []
+    # preprocess each image in the train dataset
     for i,img in enumerate(train):
         inner_circle, outer_circle = irisLocalization(img)
         # img = denoising(img)
@@ -61,9 +85,12 @@ def saveNormalizedImage():
 
 
 def rotateAll():
+    """rotate all train images by offsets, save to npy file
+    """
     norm = np.load("train_norm.npy")
     offsets = [-9,-6,-3,0,3,6,9]
     res = []
+    # rotate each image by each offset angle
     for i, img in enumerate(norm):
         for offset in offsets:
             p = rotateImg(img,offset)
@@ -73,6 +100,8 @@ def rotateAll():
     
     
 def extractFeatureFromRotatedImg():
+    """extract features from rotated images and save to npy
+    """
     imgs = np.load("train_norm_rotate.npy")
     V = []
     for i,img in enumerate(imgs):
@@ -81,7 +110,7 @@ def extractFeatureFromRotatedImg():
         print(f"process class {int(i/21)}:{i}/{len(imgs)}")
     np.save("X_train_rotate",V)
 
-
+# ===============================================================
 # denoising decreased the accuracy 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # def denoisingAll():
@@ -102,14 +131,7 @@ def extractFeatureFromRotatedImg():
 #     return img
 
 if __name__=="__main__":
-    # train,test = readDataset(True,True)
-    # print(len(train),len(test))
     
     saveNormalizedImage()
     rotateAll()
     extractFeatureFromRotatedImg()
-    
-    # imgs = np.load("X_train_rotate.npy")
-    # print(imgs.shape)
-    # denoising()
-    pass

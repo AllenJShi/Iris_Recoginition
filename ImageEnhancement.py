@@ -8,11 +8,20 @@ across the whole image. The mean of each
 background illumination.
 """
 
+# straightforward enhancement, this actually yields better results than the method suggested in paper
 # def imageEnhancement(img):
 #     return cv2.equalizeHist(img.astype(np.uint8))
 
 
 def imageEnhancement(img):
+    """image enhancement by mean firltering and remove illumination in background
+
+    Args:
+        img (array): input image
+
+    Returns:
+        array: enhanced image
+    """
     cimg = img.copy()
     background = meanFilter(cimg)
     removed = removeBackground(img,background)
@@ -33,11 +42,14 @@ def meanFilter(img:np.ndarray,size=16):
             background[row,col] = value
     
     background = cv2.resize(background,(img.shape[1],img.shape[0]), interpolation = cv2.INTER_CUBIC)
+    
+    # view the result
+    
     # _,ax = plt.subplots(1,2)
     # ax[0].imshow(background,cmap="gray")
     # ax[1].imshow(img,cmap="gray")
     # plt.show()
-    # print(background.shape)
+
     return background
 
 
@@ -45,6 +57,8 @@ def enhanceIllumination(img,size=32):
     # Enhance the lighting corrected image by histogram equalization in each 32*32 region.
     nrow,ncol = tuple(map(lambda x: int(x/size), img.shape))
     img_hist = np.zeros(img.shape)
+    
+    # for each 32x32 block, enhance the subimage in place
     for row in range(nrow):
         for col in range(ncol):
             img_hist[row*size: (row+1) * size,col*size: (col +1) * size] \

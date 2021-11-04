@@ -1,5 +1,5 @@
 import numpy as np
-from math import pi,sin,cos,floor
+from math import pi,sin,cos
 import math
 
 """Refer to [https://journals.sagepub.com/doi/pdf/10.1177/1729881417703931]
@@ -31,9 +31,14 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.nda
         [xp_,yp_,rp] = inner_circle.astype(int).flatten()[:3]
         [xi_,yi_,ri] = outer_circle.astype(int).flatten()[:3]
 
+    # this for-loop reassign each pixel value to the 
+    # normalized image by converting each corresponding 
+    # original pixel into the new coordinate system
     for X in range(N):
         for Y in range(M):
             theta = 2*pi*(X/N) + offset
+            # if we use rotation and the angle turn to be greater
+            # than 2pi, then we need to find the equivalent theta
             if theta > 2*pi:
                 theta -= 2*pi
             xp,yp = unwrap(xp_,yp_,rp,theta)
@@ -49,38 +54,19 @@ def irisNormalization(img:np.ndarray,inner_circle:np.ndarray,outer_circle:np.nda
     return img_normalized
 
 
-# def irisNormalization(img, inner_circle:np.ndarray,outer_circle:np.ndarray,offset=0):
-#     M, N = 64, 512
-#     # create a placeholder for normalized image
-#     img_normalized = np.zeros((M, N))
-#     # xc_inner, yc_inner, rp, xc_outer, yc_outer, ri
-
-#     try:
-#         [xc_inner, yc_inner, rp] = inner_circle.astype(int).flatten()
-#         [xc_outer, yc_outer, ri] = outer_circle.astype(int).flatten()
-#     except:
-#         [xc_inner, yc_inner, rp] = inner_circle.astype(int).flatten()[:3]
-#         [xc_outer, yc_outer, ri] = outer_circle.astype(int).flatten()[:3]
-
-
-#     for X in range(N):
-#         for Y in range(M):
-#             theta = 2 * math.pi * (X / N)
-
-#             xp = xc_inner - rp * np.cos(theta)
-#             yp = yc_inner + rp * np.sin(theta)
-
-#             xi = xc_outer - ri * np.cos(theta)
-#             yi = yc_outer + ri * np.sin(theta)
-
-#             x = math.floor(xp + ((xi - xp)) * (Y / M))
-#             y = math.floor(yp + ((yi - yp)) * (Y / M))
-#             img_normalized[Y, X] = img[y, x]
-
-#     return img_normalized
-
-
 def unwrap(x,y,r,theta):
+    """resolve the polor to cartisean coordinate,
+    unfold the iris ring coordinates into rect (x,y)
+
+    Args:
+        x : x-coordinate in original image
+        y : y-coordinate in original image
+        r : radius in original image
+        theta : angle in original image
+
+    Returns:
+        tuple of new coordinates: new coordinates for normalization
+    """
     # this method normalizes irises of different size to the same size.
     # Similar to this scheme, we counterclockwise unwrap the iris
     # ring to a rectangular block with a fixed size
