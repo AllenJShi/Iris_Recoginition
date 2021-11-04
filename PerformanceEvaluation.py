@@ -83,11 +83,11 @@ def identification(X_train, y_train, X_test, y_test):
 
 
 
-def verification(X_train, y_train, X_test, y_test):
+def verification(X_train, y_train, X_test, y_test,metric="cosine"):
     # In verification mode, the Receiver
     # Operating Characteristic (ROC) curve is used to report the
     # performance of the proposed method. 
-    _,centroids= nearestCentroid(X_train, y_train, X_test, y_test,metric="cosine")
+    _,centroids= nearestCentroid(X_train, y_train, X_test, y_test,metric=metric)
     thresholds = np.linspace(0.1,0.8,20)
     n_bootstrap = 1000
     scores = pairwise_distances(X_test,centroids,metric="cosine")
@@ -102,8 +102,6 @@ def verification(X_train, y_train, X_test, y_test):
     fnmrs_org = np.zeros(20)
     for j,threshold in enumerate(thresholds):
         fmrs_org[j], fnmrs_org[j] = map(lambda x:x*100, ROC(results,scores,threshold))
-    mean_fmrs_org = np.mean(fmrs_org)
-    mean_fnmrs_org = np.mean(fnmrs_org)
 
 
     # bootstrap
@@ -134,14 +132,14 @@ def verification(X_train, y_train, X_test, y_test):
     roc_table = pd.DataFrame(
         {
             "Thresholds":thresholds,
-            "False match rate (%)":mean_fmrs_org,
-            "False non-match rate (%)":mean_fnmrs_org         
+            "False match rate (%)":fmrs_org,
+            "False non-match rate (%)":fnmrs_org         
         }
     ).set_index("Thresholds")
-    roc_table.to_csv("ROC Table.csv")
+    roc_table.to_csv(f"{metric} ROC Table.csv")
     
     # create result table
-    print("======================== ROC ========================")
+    print(f"======================== {metric} ROC ========================")
     print(roc_table)
     
     
@@ -152,15 +150,15 @@ def verification(X_train, y_train, X_test, y_test):
     for ax in axs:
         ax.set_xticks([1e-3, 1e-2, 1e-1, 1e-0, 1e1, 1e2])
         ax.set_xscale("log")
-        ax.set_xlabel('False match rate (%)')
-        ax.set_ylabel('False non-match rate (%)')
+        ax.set_xlabel(f'{metric} False match rate (%)')
+        ax.set_ylabel(f'{metric} False non-match rate (%)')
         ax.plot(fmrs_org, fnmrs_org, linestyle='--')
     axs[0].plot(ci_fmrs, mean_fnmrs)
     axs[0].set_title('FMR CI')
     axs[1].plot(mean_fmrs, ci_fnmrs)
     axs[1].set_title('FNMR CI')
     plt.show()
-    fig.savefig('FMR_FNMR.png')
+    fig.savefig(f'FMR_FNMR_{metric}.png')
 
 
 
@@ -175,7 +173,11 @@ def performanceEvaluation(X_train, y_train, X_test, y_test):
         y_test (array): test dataset class labels
     """
     X_train_lda, X_test_lda = identification(X_train, y_train, X_test, y_test)
-    verification(X_train_lda, y_train, X_test_lda, y_test)
+    verification(X_train_lda, y_train, X_test_lda, y_test,metric="cosine")
+    # run the following only if asked, because as discussed in the paper, 
+    # cosine similarity provides the minimum distance and thus accepted
+    # verification(X_train_lda, y_train, X_test_lda, y_test,metric="l1")
+    # verification(X_train_lda, y_train, X_test_lda, y_test,metric="l2")
     
 
 

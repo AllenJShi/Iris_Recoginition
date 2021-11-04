@@ -23,6 +23,7 @@ if __name__=="__main__":
     X_train,y_train, X_test, y_test= \
         irisMatching(train, test, n_components = 107,rotate=False, dimReduce = False)
     performanceEvaluation(X_train, y_train, X_test, y_test)
+
     
     
     
